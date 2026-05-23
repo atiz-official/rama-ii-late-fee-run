@@ -95,7 +95,7 @@ export function Hud() {
           </span>
         </div>
         <div className="map-meta">
-          <span>{stage === 'nursery' ? (hasChild ? 'coffee secured' : 'find table') : `${Math.round(speed * 4.2)} km/h`}</span>
+          <span>{stage === 'nursery' ? (hasChild ? 'coffee secured' : 'find table') : `${Math.round(speed * 2.6)} km/h`}</span>
           <span>
             scenic route
           </span>

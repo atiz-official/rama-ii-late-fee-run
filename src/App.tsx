@@ -3,6 +3,7 @@ import { KeyboardControls, Preload } from '@react-three/drei'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Camera, Octagon, RotateCcw, Share2, Video } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
+import { ACESFilmicToneMapping, SRGBColorSpace } from 'three'
 import type { WebGLRenderer } from 'three'
 import { GameScene } from './components/GameScene'
 import { Hud } from './components/Hud'
@@ -93,6 +94,9 @@ function App() {
           gl={{ alpha: false, antialias: true, preserveDrawingBuffer: true }}
           onCreated={({ gl }) => {
             rendererRef.current = gl
+            gl.toneMapping = ACESFilmicToneMapping
+            gl.toneMappingExposure = 1.08
+            gl.outputColorSpace = SRGBColorSpace
           }}
         >
           <Suspense fallback={null}>

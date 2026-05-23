@@ -1,4 +1,5 @@
 import { ContactShadows, PerspectiveCamera, RoundedBox, useAnimations, useGLTF, useKeyboardControls } from '@react-three/drei'
+import { Bloom, EffectComposer, SMAA, Vignette } from '@react-three/postprocessing'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { RefObject } from 'react'
@@ -125,12 +126,12 @@ function RoadRunScene() {
 
     if (status === 'running') {
       p.runTime += delta
-      const accel = keys.forward ? 24 : keys.backward ? -12 : 0
+      const accel = keys.forward ? 16 : keys.backward ? -10 : 0
       const braking = keys.brake ? 30 : 0
       p.speed += accel * delta
       p.speed -= braking * delta * Math.sign(p.speed || 1)
       p.speed = MathUtils.damp(p.speed, 0, keys.brake ? 1.8 : 0.58, delta)
-      p.speed = MathUtils.clamp(p.speed, -9, 42)
+      p.speed = MathUtils.clamp(p.speed, -7, 28)
 
       const steer = (keys.left ? 1 : 0) - (keys.right ? 1 : 0)
       p.x += steer * delta * (7.6 + Math.abs(p.speed) * 0.2)
@@ -196,7 +197,7 @@ function RoadRunScene() {
       p.cleanStreak = holdingGoodLine ? Math.min(9.9, p.cleanStreak + delta) : Math.max(0, p.cleanStreak - delta * 1.8)
       const cleanRecovery = p.cleanStreak > 1.2 ? 6.8 * delta : 0
       const cafeMoodLift = p.cafesSeen.size * 0.55 * delta
-      p.stress += trafficPressure + (offLane ? 7 * delta : -4.5 * delta) + (p.stuckTime > 4.5 ? 2 * delta : 0) - cleanRecovery - cafeMoodLift
+      p.stress += trafficPressure * 0.55 + (offLane ? 4.5 * delta : -5.5 * delta) + (p.stuckTime > 4.5 ? 1.2 * delta : 0) - cleanRecovery - cafeMoodLift
       p.stress = MathUtils.clamp(p.stress, 0, 100)
       p.score += Math.max(0, p.speed) * delta * (0.35 + p.combo * 0.08)
       if (p.cleanStreak > 2.5) p.score += delta * 14 * Math.min(3, p.cleanStreak / 2.5)
@@ -288,9 +289,12 @@ function RoadRunScene() {
       <Road />
       <City />
       <CafeStorefronts />
+      <StreetGreenery />
+      <CafePatios />
       <Traffic />
       <ScenicCafe />
       <GlacierBlueEvSuv refObject={ev} />
+      <CinematicGrade />
     </>
   )
 }
@@ -936,13 +940,29 @@ function Road() {
     <group>
       <mesh receiveShadow position={[0, -0.05, 420]}>
         <boxGeometry args={[ROAD_WIDTH, 0.12, 940]} />
-        <meshStandardMaterial color="#283036" roughness={0.48} metalness={0.08} />
+        <meshStandardMaterial color="#2c3436" roughness={0.42} metalness={0.12} />
       </mesh>
+      <mesh receiveShadow position={[0, -0.01, 420]}>
+        <boxGeometry args={[ROAD_WIDTH - 0.6, 0.025, 940]} />
+        <meshStandardMaterial color="#303a3c" roughness={0.34} metalness={0.18} transparent opacity={0.58} />
+      </mesh>
+      {[-10.3, 10.3].map((x) => (
+        <mesh key={`sidewalk-${x}`} receiveShadow position={[x, 0.03, 420]}>
+          <boxGeometry args={[4.2, 0.18, 940]} />
+          <meshStandardMaterial color="#b9b3a6" roughness={0.62} />
+        </mesh>
+      ))}
+      {[-8.1, 8.1].map((x) => (
+        <mesh key={`curb-${x}`} receiveShadow castShadow position={[x, 0.18, 420]}>
+          <boxGeometry args={[0.36, 0.42, 940]} />
+          <meshStandardMaterial color="#e4ded2" roughness={0.56} />
+        </mesh>
+      ))}
       <SunPatches />
       {[-7.8, 7.8].map((x) => (
-        <mesh key={x} receiveShadow castShadow position={[x, 0.65, 420]}>
-          <boxGeometry args={[0.55, 1.4, 940]} />
-          <meshStandardMaterial color="#727b7f" roughness={0.58} />
+        <mesh key={x} receiveShadow castShadow position={[x, 0.24, 420]}>
+          <boxGeometry args={[0.12, 0.16, 940]} />
+          <meshStandardMaterial color="#f1eee1" roughness={0.45} />
         </mesh>
       ))}
       {[-LANE_WIDTH / 2, LANE_WIDTH / 2].map((x) =>
@@ -961,6 +981,30 @@ function Road() {
         </mesh>
       ))}
       <OverheadSigns />
+      <RoadTextureDetails />
+    </group>
+  )
+}
+
+function RoadTextureDetails() {
+  return (
+    <group>
+      {Array.from({ length: 58 }, (_, index) => {
+        const z = 10 + index * 16
+        const x = ((index * 19) % 110) / 10 - 5.5
+        return (
+          <mesh key={index} position={[x, 0.038, z]} rotation={[-Math.PI / 2, 0, (index % 7) * 0.18]}>
+            <planeGeometry args={[0.5 + (index % 5) * 0.18, 0.035]} />
+            <meshStandardMaterial color="#6f7775" transparent opacity={0.18} roughness={0.8} />
+          </mesh>
+        )
+      })}
+      {Array.from({ length: 24 }, (_, index) => (
+        <mesh key={`cross-${index}`} position={[index % 2 ? -5.9 : 5.9, 0.04, 28 + index * 34]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[1.9, 0.16]} />
+          <meshStandardMaterial color="#f7f1dc" transparent opacity={0.22} roughness={0.5} />
+        </mesh>
+      ))}
     </group>
   )
 }
@@ -1019,11 +1063,15 @@ function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> })
   return (
     <group ref={refObject}>
       <RoundedBox castShadow receiveShadow position={[0, 0.58, 0]} args={[2.42, 0.74, 4.56]} radius={0.28} smoothness={7}>
-        <meshStandardMaterial color="#8fc7df" roughness={0.22} metalness={0.2} />
+        <meshStandardMaterial color="#9ed5ea" roughness={0.16} metalness={0.38} />
       </RoundedBox>
       <RoundedBox castShadow position={[0, 0.86, 1.52]} args={[2.06, 0.26, 1.0]} radius={0.28} smoothness={7}>
-        <meshStandardMaterial color="#93cbe3" roughness={0.2} metalness={0.24} />
+        <meshStandardMaterial color="#a7dbef" roughness={0.15} metalness={0.4} />
       </RoundedBox>
+      <mesh position={[0, 0.97, 0.15]} rotation={[-0.04, 0, 0]}>
+        <boxGeometry args={[2.0, 0.018, 3.35]} />
+        <meshStandardMaterial color="#eaffff" transparent opacity={0.18} roughness={0.08} metalness={0.7} />
+      </mesh>
       <RoundedBox castShadow position={[0, 1.09, -0.34]} args={[1.78, 0.62, 2.28]} radius={0.32} smoothness={8}>
         <meshStandardMaterial color="#151d24" roughness={0.06} metalness={0.55} />
       </RoundedBox>
@@ -1041,10 +1089,10 @@ function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> })
       </mesh>
       <CabinCouple />
       <RoundedBox castShadow position={[0, 0.38, 2.23]} args={[2.12, 0.2, 0.16]} radius={0.08} smoothness={4}>
-        <meshStandardMaterial color="#68aeca" roughness={0.18} metalness={0.3} />
+        <meshStandardMaterial color="#77bfd9" roughness={0.14} metalness={0.42} />
       </RoundedBox>
       <RoundedBox castShadow position={[0, 0.36, -2.22]} args={[2.04, 0.18, 0.16]} radius={0.08} smoothness={4}>
-        <meshStandardMaterial color="#5ea6c4" roughness={0.2} metalness={0.26} />
+        <meshStandardMaterial color="#6bb6d2" roughness={0.15} metalness={0.38} />
       </RoundedBox>
       {[-1.22, 1.22].map((x) => (
         <mesh key={`mirror-${x}`} castShadow position={[x, 1.02, -0.68]}>
@@ -1082,6 +1130,7 @@ function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> })
       <pointLight position={[0.8, 0.45, 2.42]} intensity={4.8} distance={12} color="#d9fbff" />
       <pointLight position={[-0.78, 0.52, -2.38]} intensity={5} distance={8} color="#ff2222" />
       <pointLight position={[0.78, 0.52, -2.38]} intensity={5} distance={8} color="#ff2222" />
+      <ContactShadows position={[0, -0.41, 0]} opacity={0.44} scale={5.2} blur={1.8} far={2.8} />
     </group>
   )
 }
@@ -1285,6 +1334,104 @@ function CafeStorefronts() {
   )
 }
 
+function StreetGreenery() {
+  const trees = useMemo(
+    () =>
+      Array.from({ length: 34 }, (_, index) => ({
+        side: index % 2 ? -1 : 1,
+        z: 18 + index * 27,
+        lean: ((index % 5) - 2) * 0.035,
+        scale: 0.82 + (index % 4) * 0.08,
+      })),
+    [],
+  )
+
+  return (
+    <group>
+      {trees.map((tree, index) => (
+        <group key={index} position={[tree.side * (9.05 + (index % 3) * 0.72), 0, tree.z]} rotation={[0, tree.lean * 6, tree.lean]}>
+          <mesh castShadow position={[0, 1.3 * tree.scale, 0]}>
+            <cylinderGeometry args={[0.13, 0.22, 2.6 * tree.scale, 10]} />
+            <meshStandardMaterial color="#6e5237" roughness={0.72} />
+          </mesh>
+          {[0, 1, 2].map((layer) => (
+            <mesh key={layer} castShadow position={[tree.side * 0.16 * layer, 2.6 * tree.scale + layer * 0.36, 0]} rotation={[0, layer * 0.7, 0]}>
+              <sphereGeometry args={[0.82 - layer * 0.12, 18, 12]} />
+              <meshStandardMaterial color={layer % 2 ? '#4f8b59' : '#5f9b66'} roughness={0.68} />
+            </mesh>
+          ))}
+          <mesh receiveShadow position={[0, 0.08, 0]}>
+            <cylinderGeometry args={[0.72, 0.84, 0.16, 22]} />
+            <meshStandardMaterial color="#a8845d" roughness={0.64} />
+          </mesh>
+        </group>
+      ))}
+      {Array.from({ length: 26 }, (_, index) => {
+        const side = index % 2 ? -1 : 1
+        return (
+          <group key={`planter-${index}`} position={[side * 8.78, 0, 34 + index * 31]}>
+            <mesh castShadow receiveShadow position={[0, 0.22, 0]}>
+              <boxGeometry args={[1.25, 0.44, 0.72]} />
+              <meshStandardMaterial color="#b58c63" roughness={0.66} />
+            </mesh>
+            {[-0.32, 0, 0.32].map((x) => (
+              <mesh key={x} castShadow position={[x, 0.62, 0]}>
+                <sphereGeometry args={[0.28, 14, 10]} />
+                <meshStandardMaterial color={index % 3 ? '#41784a' : '#7a9b58'} roughness={0.7} />
+              </mesh>
+            ))}
+          </group>
+        )
+      })}
+    </group>
+  )
+}
+
+function CafePatios() {
+  const patios = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, index) => ({
+        side: index % 2 ? -1 : 1,
+        z: 68 + index * 74,
+      })),
+    [],
+  )
+
+  return (
+    <group>
+      {patios.map((patio, index) => (
+        <group key={index} position={[patio.side * 10.05, 0, patio.z]} rotation={[0, patio.side > 0 ? -0.1 : 0.1, 0]}>
+          <mesh receiveShadow position={[0, 0.08, 0]}>
+            <boxGeometry args={[4.7, 0.12, 3.1]} />
+            <meshStandardMaterial color={index % 2 ? '#d2c1aa' : '#c8d3bf'} roughness={0.58} />
+          </mesh>
+          {[-1.25, 1.25].map((x) => (
+            <group key={x} position={[x, 0, -patio.side * 0.2]}>
+              <mesh castShadow position={[0, 0.52, 0]}>
+                <cylinderGeometry args={[0.34, 0.34, 0.08, 24]} />
+                <meshStandardMaterial color="#4c3c2e" roughness={0.5} />
+              </mesh>
+              <mesh castShadow position={[0, 0.28, 0]}>
+                <cylinderGeometry args={[0.045, 0.045, 0.52, 10]} />
+                <meshStandardMaterial color="#262423" metalness={0.25} roughness={0.36} />
+              </mesh>
+              {[-0.52, 0.52].map((chairX) => (
+                <RoundedBox key={chairX} castShadow position={[chairX, 0.34, 0.28]} args={[0.34, 0.36, 0.34]} radius={0.04} smoothness={2}>
+                  <meshStandardMaterial color={index % 2 ? '#315c4c' : '#9a3943'} roughness={0.48} />
+                </RoundedBox>
+              ))}
+            </group>
+          ))}
+          <mesh castShadow position={[0, 1.48, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <coneGeometry args={[1.5, 0.48, 4]} />
+            <meshStandardMaterial color={index % 2 ? '#f4d49b' : '#e9ebdd'} roughness={0.46} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
 function ScenicCafe() {
   return (
     <group position={[0, 0, FINISH_Z + 20]}>
@@ -1322,5 +1469,15 @@ function ScenicCafe() {
       ))}
       <pointLight position={[0, 3.6, -2]} intensity={8} distance={18} color="#ffe0a6" />
     </group>
+  )
+}
+
+function CinematicGrade() {
+  return (
+    <EffectComposer multisampling={0} enableNormalPass={false}>
+      <SMAA />
+      <Bloom intensity={0.38} luminanceThreshold={0.42} luminanceSmoothing={0.28} mipmapBlur />
+      <Vignette offset={0.18} darkness={0.42} />
+    </EffectComposer>
   )
 }
