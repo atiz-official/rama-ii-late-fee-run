@@ -12,7 +12,7 @@ const LANE_WIDTH = 4.1
 const ROAD_WIDTH = 14.5
 const ROAD_EDGE_LIMIT = ROAD_WIDTH / 2 - 1.55
 const SHOULDER_STRESS_LIMIT = ROAD_WIDTH / 2 - 2.4
-const CAMERA_OFFSET = new Vector3(0, 3.35, -7.4)
+const CAMERA_OFFSET = new Vector3(0, 2.15, -5.9)
 const DEMO_MODE = new URLSearchParams(window.location.search).get('demo') === '1'
 const CAFE_STOP_ZONE = FINISH_Z * 0.72
 
@@ -272,7 +272,7 @@ function RoadRunScene() {
       const shake = player.current.shake
       const target = new Vector3(player.current.x + Math.sin(state.clock.elapsedTime * 36) * shake * 0.22, 0, player.current.z).add(CAMERA_OFFSET)
       cameraRig.current.position.lerp(target, 1 - Math.exp(-4 * delta))
-      cameraRig.current.lookAt(player.current.x, 1.05, player.current.z + 8.2)
+      cameraRig.current.lookAt(player.current.x, 0.95, player.current.z + 4.4)
     }
 
     state.scene.fog?.color.set('#b8d8df')
@@ -1150,27 +1150,42 @@ function ThongLorIdentity() {
 function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> }) {
   return (
     <group ref={refObject}>
-      <RoundedBox castShadow receiveShadow position={[0, 0.52, -0.12]} args={[2.38, 0.56, 4.58]} radius={0.34} smoothness={10}>
-        <meshStandardMaterial color="#9ed5ea" roughness={0.16} metalness={0.38} />
+      <RoundedBox castShadow receiveShadow position={[0, 0.47, -0.05]} args={[2.58, 0.52, 4.72]} radius={0.42} smoothness={16}>
+        <meshStandardMaterial color="#a9def0" roughness={0.11} metalness={0.58} envMapIntensity={1.4} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 0.72, 1.55]} args={[1.96, 0.34, 1.34]} radius={0.3} smoothness={10}>
-        <meshStandardMaterial color="#a7dbef" roughness={0.15} metalness={0.4} />
+      <RoundedBox castShadow position={[0, 0.58, 1.62]} args={[2.1, 0.26, 1.36]} radius={0.36} smoothness={14}>
+        <meshStandardMaterial color="#b9e7f5" roughness={0.1} metalness={0.55} envMapIntensity={1.35} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 0.77, -1.75]} args={[2.16, 0.3, 0.86]} radius={0.26} smoothness={8}>
-        <meshStandardMaterial color="#8fcbe3" roughness={0.17} metalness={0.42} />
+      <RoundedBox castShadow position={[0, 0.64, -1.86]} args={[2.46, 0.44, 1.0]} radius={0.32} smoothness={14}>
+        <meshStandardMaterial color="#93d2e8" roughness={0.11} metalness={0.56} envMapIntensity={1.45} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 1.02, -0.34]} args={[1.72, 0.7, 2.42]} radius={0.38} smoothness={12}>
-        <meshStandardMaterial color="#13212a" transparent opacity={0.34} roughness={0.04} metalness={0.62} />
+      <RoundedBox castShadow position={[0, 1.03, -0.38]} args={[1.86, 0.72, 2.58]} radius={0.5} smoothness={18}>
+        <meshStandardMaterial color="#081217" transparent opacity={0.26} roughness={0.02} metalness={0.78} envMapIntensity={1.7} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 1.27, -0.42]} args={[1.46, 0.08, 1.62]} radius={0.08} smoothness={4}>
-        <meshStandardMaterial color="#051015" transparent opacity={0.82} roughness={0.02} metalness={0.82} />
+      <RoundedBox castShadow position={[0, 1.3, -0.42]} args={[1.54, 0.09, 1.82]} radius={0.09} smoothness={5}>
+        <meshStandardMaterial color="#02090d" roughness={0.015} metalness={0.9} envMapIntensity={1.8} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 0.98, 0.93]} rotation={[-0.18, 0, 0]} args={[1.52, 0.42, 0.1]} radius={0.06} smoothness={3}>
-        <meshStandardMaterial color="#dff9ff" transparent opacity={0.32} roughness={0.03} metalness={0.7} />
+      <RoundedBox castShadow position={[0, 0.96, 0.94]} rotation={[-0.25, 0, 0]} args={[1.58, 0.48, 0.08]} radius={0.07} smoothness={4}>
+        <meshStandardMaterial color="#ecfdff" transparent opacity={0.42} roughness={0.015} metalness={0.74} envMapIntensity={1.8} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 1.08, -1.52]} rotation={[0.24, 0, 0]} args={[1.46, 0.46, 0.1]} radius={0.06} smoothness={3}>
-        <meshStandardMaterial color="#dff9ff" transparent opacity={0.36} roughness={0.03} metalness={0.7} />
+      <RoundedBox castShadow position={[0, 1.04, -1.62]} rotation={[0.18, 0, 0]} args={[1.64, 0.62, 0.09]} radius={0.08} smoothness={5}>
+        <meshStandardMaterial color="#ecfdff" transparent opacity={0.48} roughness={0.015} metalness={0.76} envMapIntensity={1.9} />
       </RoundedBox>
+      <RoundedBox castShadow position={[0, 1.41, -1.95]} args={[1.74, 0.12, 0.24]} radius={0.06} smoothness={5}>
+        <meshStandardMaterial color="#101820" roughness={0.12} metalness={0.58} />
+      </RoundedBox>
+      <RoundedBox castShadow position={[0, 0.74, -2.4]} args={[2.18, 0.94, 0.18]} radius={0.12} smoothness={8}>
+        <meshStandardMaterial color="#8fd0e8" roughness={0.12} metalness={0.56} envMapIntensity={1.45} />
+      </RoundedBox>
+      <RoundedBox position={[0, 0.96, -2.505]} args={[1.34, 0.38, 0.035]} radius={0.035} smoothness={3}>
+        <meshStandardMaterial color="#061015" transparent opacity={0.5} roughness={0.02} metalness={0.82} envMapIntensity={1.8} />
+      </RoundedBox>
+      <RoundedBox position={[0, 0.52, -2.52]} args={[0.44, 0.22, 0.04]} radius={0.025} smoothness={3}>
+        <meshStandardMaterial color="#f6fafb" roughness={0.28} metalness={0.12} />
+      </RoundedBox>
+      <Text position={[0, 0.52, -2.545]} fontSize={0.08} color="#121212" anchorX="center" anchorY="middle">
+        BKK EV
+      </Text>
       {[-1.12, 1.12].map((x) => (
         <group key={`side-detail-${x}`} position={[x, 0, 0]}>
           <RoundedBox castShadow position={[0, 0.73, -0.38]} args={[0.045, 0.44, 1.28]} radius={0.04} smoothness={3}>
@@ -1191,27 +1206,33 @@ function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> })
         <boxGeometry args={[1.9, 0.018, 3.45]} />
         <meshStandardMaterial color="#eaffff" transparent opacity={0.16} roughness={0.08} metalness={0.72} />
       </mesh>
-      <RoundedBox castShadow position={[0, 0.34, 2.18]} args={[2.04, 0.18, 0.22]} radius={0.12} smoothness={5}>
-        <meshStandardMaterial color="#77bfd9" roughness={0.14} metalness={0.42} />
+      <RoundedBox castShadow position={[0, 0.29, 2.18]} args={[2.2, 0.18, 0.26]} radius={0.14} smoothness={6}>
+        <meshStandardMaterial color="#7bc9e2" roughness={0.11} metalness={0.54} envMapIntensity={1.3} />
       </RoundedBox>
-      <RoundedBox castShadow position={[0, 0.35, -2.18]} args={[2.02, 0.18, 0.22]} radius={0.12} smoothness={5}>
-        <meshStandardMaterial color="#6bb6d2" roughness={0.15} metalness={0.38} />
+      <RoundedBox castShadow position={[0, 0.26, -2.2]} args={[2.42, 0.24, 0.32]} radius={0.16} smoothness={7}>
+        <meshStandardMaterial color="#172027" roughness={0.18} metalness={0.55} />
       </RoundedBox>
       {[-1.22, 1.22].map((x) => (
         <RoundedBox key={`mirror-${x}`} castShadow position={[x, 0.96, 0.48]} args={[0.18, 0.12, 0.36]} radius={0.06} smoothness={4}>
           <meshStandardMaterial color="#0d151a" roughness={0.18} metalness={0.46} />
         </RoundedBox>
       ))}
-      {[[-1.08, -1.48], [1.08, -1.48], [-1.08, 1.48], [1.08, 1.48]].map(([x, z]) => (
+      {[[-1.16, -1.58], [1.16, -1.58], [-1.16, 1.48], [1.16, 1.48]].map(([x, z]) => (
         <group key={`${x}-${z}`} position={[x, 0.31, z]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh castShadow>
-            <cylinderGeometry args={[0.39, 0.39, 0.26, 32]} />
+            <cylinderGeometry args={[0.45, 0.45, 0.3, 40]} />
             <meshStandardMaterial color="#050607" roughness={0.45} />
           </mesh>
           <mesh position={[0, 0, 0.15]}>
-            <cylinderGeometry args={[0.2, 0.2, 0.04, 24]} />
+            <cylinderGeometry args={[0.24, 0.24, 0.045, 32]} />
             <meshStandardMaterial color="#c3ccd0" roughness={0.18} metalness={0.58} />
           </mesh>
+          {[0, 1, 2, 3, 4].map((spoke) => (
+            <mesh key={spoke} position={[0, 0, 0.18]} rotation={[0, 0, (spoke * Math.PI) / 5]}>
+              <boxGeometry args={[0.04, 0.32, 0.024]} />
+              <meshStandardMaterial color="#eef3f5" roughness={0.16} metalness={0.72} />
+            </mesh>
+          ))}
         </group>
       ))}
       {[-1.09, 1.09].map((x) =>
@@ -1232,10 +1253,16 @@ function GlacierBlueEvSuv({ refObject }: { refObject: RefObject<Group | null> })
           <meshStandardMaterial color="#eefcff" emissive="#ccf4ff" emissiveIntensity={2.5} />
         </mesh>
       ))}
-      <mesh position={[0, 0.54, -2.35]}>
-        <boxGeometry args={[1.72, 0.055, 0.035]} />
-        <meshStandardMaterial color="#ff2d36" emissive="#ff1f2a" emissiveIntensity={2.2} />
+      <mesh position={[0, 0.77, -2.56]}>
+        <boxGeometry args={[1.92, 0.045, 0.035]} />
+        <meshStandardMaterial color="#ff2430" emissive="#ff1d2b" emissiveIntensity={3.8} />
       </mesh>
+      {[-0.9, 0.9].map((x) => (
+        <mesh key={`rear-claw-${x}`} position={[x, 0.68, -2.565]}>
+          <boxGeometry args={[0.34, 0.08, 0.035]} />
+          <meshStandardMaterial color="#ff3842" emissive="#ff2430" emissiveIntensity={3.2} />
+        </mesh>
+      ))}
       <pointLight position={[-0.8, 0.45, 2.42]} intensity={4.8} distance={12} color="#d9fbff" />
       <pointLight position={[0.8, 0.45, 2.42]} intensity={4.8} distance={12} color="#d9fbff" />
       <pointLight position={[-0.78, 0.52, -2.38]} intensity={5} distance={8} color="#ff2222" />
