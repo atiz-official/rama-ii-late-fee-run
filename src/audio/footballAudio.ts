@@ -220,7 +220,7 @@ export function playFootballCue(kind: FootballCue) {
 
 export function playOutcomeCues(outcome: TimelineOutcome) {
   stopCommentary()
-  const effect = outcome.effect === 'fan' ? 'chaos' : outcome.effect === 'portal' ? 'portal' : 'crowd'
+  const effect = outcome.effect === 'fan' || outcome.effect === 'multi' ? 'chaos' : outcome.effect === 'portal' ? 'portal' : 'crowd'
   window.setTimeout(() => playFootballCue(effect), effect === 'chaos' ? 80 : 0)
   window.setTimeout(() => {
     if (outcome.impact === 'net') playFootballCue('net')

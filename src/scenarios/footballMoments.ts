@@ -21,7 +21,7 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     energyCopy: {
       normal: { title: 'Realistic', kicker: 'Normal match', description: 'Goal, save, post, miss.' },
       hero: { title: 'Cinematic', kicker: 'Highlight reel', description: 'Perfect finish, big emotion.' },
-      chaos: { title: 'Absurd', kicker: 'Meme branch', description: 'Unexpected pitch invasion.' },
+      chaos: { title: 'Absurd', kicker: 'Meme branch', description: 'Split-ball timeline.' },
       cursed: { title: 'Supernatural', kicker: 'Glitch branch', description: 'Reality breaks the rules.' },
     },
   },

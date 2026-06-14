@@ -18,13 +18,13 @@ function pickSpotKickOutcome(energy: TimelineEnergy, timing: number, seed: numbe
 
   if (energy === 'chaos') {
     return {
-      id: 'fan-steals-kick',
-      label: 'Fan Timeline',
-      caption: 'A random spectator just became canon.',
+      id: 'timeline-split',
+      label: 'Timeline Split',
+      caption: 'Two possible shots exist in the same second.',
       rarity: 'absurd',
       rarityTier: 'absurd',
       odds: '1.9%',
-      target: { x: 48 + rand() * 7, y: 33 + rand() * 8 },
+      target: { x: 42 + rand() * 18, y: 27 + rand() * 14 },
       ballColor: '#9affd0',
       keeperDive: luck > 0.62 ? 'left' : 'right',
       keeperReaction: 'stunned-freeze',
@@ -32,14 +32,14 @@ function pickSpotKickOutcome(energy: TimelineEnergy, timing: number, seed: numbe
       crowdBed: 'chaos-surge',
       commentaryStyle: 'meme-table',
       cameraTreatment: 'handheld-chaos',
-      commentatorLine: 'Wait, wait, that is not the taker! The timeline has been invaded!',
-      crowdSign: 'WHO LET HIM COOK?',
-      beats: ['fan breaks the lane', 'keeper freezes', 'stadium loses shape'],
+      commentatorLine: 'There are two timelines on the same kick! The stadium cannot agree what happened!',
+      crowdSign: 'TWO TIMELINES?',
+      beats: ['broadcast splits', 'second ball appears', 'crowd chooses a version'],
       flight: 'curl',
       impact: 'net',
       curve: (rand() - 0.5) * 20,
       spin: 950 + rand() * 520,
-      effect: 'fan',
+      effect: 'multi',
     }
   }
 

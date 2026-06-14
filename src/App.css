@@ -533,6 +533,7 @@
 }
 
 .ball-flight,
+.timeline-split,
 .keeper-reaction,
 .goal-impact,
 .fan-intervention,
@@ -1202,6 +1203,11 @@
   --shock-y: 68%;
 }
 
+.shock-multi {
+  --shock-x: 47%;
+  --shock-y: 62%;
+}
+
 .shock-save {
   --shock-x: 50%;
   --shock-y: 39%;
@@ -1216,6 +1222,57 @@
   z-index: 6;
   opacity: 0;
   animation: impact-layer 1.22s ease forwards;
+}
+
+.timeline-split {
+  z-index: 9;
+  overflow: hidden;
+}
+
+.split-rift,
+.split-ball {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.split-rift {
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 84%;
+  background:
+    linear-gradient(180deg, transparent, rgba(154, 255, 208, 0.74), rgba(255, 255, 255, 0.32), rgba(154, 255, 208, 0.74), transparent);
+  box-shadow:
+    0 0 24px rgba(154, 255, 208, 0.34),
+    0 0 90px rgba(154, 255, 208, 0.18);
+  opacity: 0;
+  transform: translate(-50%, -50%) skewX(-7deg);
+  animation: split-rift 1.35s ease both;
+}
+
+.split-ball {
+  left: var(--split-start-x);
+  top: var(--split-start-y);
+  width: clamp(18px, 2.1vw, 30px);
+  height: clamp(18px, 2.1vw, 30px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.98) 0 11%, transparent 12%),
+    conic-gradient(from 30deg, #0d1017 0 11%, #f8f4e8 11% 24%, #10131a 24% 39%, #fffaf0 39% 58%, #0d1017 58% 70%, #fbf5eb 70% 100%);
+  box-shadow:
+    inset -6px -7px 10px rgba(0, 0, 0, 0.46),
+    0 0 22px rgba(154, 255, 208, 0.86);
+  opacity: 0;
+}
+
+.split-ball-a {
+  animation: split-ball-a 1.08s cubic-bezier(0.13, 0.82, 0.12, 1) 80ms forwards;
+}
+
+.split-ball-b {
+  filter: hue-rotate(68deg) saturate(1.25);
+  animation: split-ball-b 1.08s cubic-bezier(0.13, 0.82, 0.12, 1) 110ms forwards;
 }
 
 .impact-core {
@@ -1341,6 +1398,55 @@
     top: calc(var(--end-y) + 7%);
     opacity: 0.04;
     transform: translate(-50%, -50%) scale(0.45);
+  }
+}
+
+@keyframes split-rift {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) skewX(-7deg) scaleY(0.62);
+  }
+  22%,
+  68% {
+    opacity: 0.82;
+    transform: translate(-50%, -50%) skewX(-7deg) scaleY(1);
+  }
+}
+
+@keyframes split-ball-a {
+  0% {
+    left: var(--split-start-x);
+    top: var(--split-start-y);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35) rotate(0deg);
+  }
+  18% {
+    opacity: 0.92;
+  }
+  100% {
+    left: 35%;
+    top: 31%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.44) rotate(820deg);
+  }
+}
+
+@keyframes split-ball-b {
+  0% {
+    left: var(--split-start-x);
+    top: var(--split-start-y);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+  }
+  18% {
+    opacity: 0.82;
+  }
+  100% {
+    left: 66%;
+    top: 34%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.38) rotate(-760deg);
   }
 }
 

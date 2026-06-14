@@ -106,11 +106,15 @@ function drawShareOverlay(context: CanvasRenderingContext2D, outcome: TimelineOu
   context.fill()
   context.shadowBlur = 0
 
-  if (outcome.effect === 'fan') {
+  if (outcome.effect === 'multi') {
     context.globalAlpha = Math.max(0, 0.65 - Math.abs(progress - 0.36) * 2.2)
     context.fillStyle = 'rgba(187, 255, 206, 0.24)'
     context.beginPath()
     context.ellipse(width * 0.42, height * 0.64, 160, 44, -0.35, 0, Math.PI * 2)
+    context.fill()
+    context.fillStyle = 'rgba(154, 255, 208, 0.88)'
+    context.beginPath()
+    context.arc(ballX + 70 * Math.sin(progress * Math.PI), ballY + 44, Math.max(3, 12 - eased * 5), 0, Math.PI * 2)
     context.fill()
     context.globalAlpha = 1
   }
@@ -217,7 +221,7 @@ function scheduleShareAudio(context: AudioContext, destination: AudioNode, outco
     scheduleShareTone(context, destination, 102, start + 2.15, 1.2, { gain: 0.028, type: 'sine' })
   }
 
-  if (outcome.effect === 'fan') {
+  if (outcome.effect === 'multi') {
     scheduleShareTone(context, destination, 205, start + 1.36, 0.5, { gain: 0.065, type: 'sawtooth' })
     scheduleShareNoise(context, destination, start + 1.46, 1.45, { gain: 0.108, lowpass: 5600, highpass: 260 })
   }
