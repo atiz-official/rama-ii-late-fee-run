@@ -61,12 +61,10 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
   },
 ]
 
-const DEFAULT_SCENARIO_ID = 'penalty-timeline-remix'
-
 export function getScenario(id?: string | null) {
   return (
     footballMomentScenarios.find((scenario) => scenario.id === id || scenario.slug === id) ??
-    footballMomentScenarios.find((scenario) => scenario.id === DEFAULT_SCENARIO_ID) ??
+    footballMomentScenarios.at(-1) ??
     footballMomentScenarios[0]
   )
 }
