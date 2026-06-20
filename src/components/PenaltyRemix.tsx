@@ -155,16 +155,56 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
   useEffect(() => {
     if (phase !== 'setup') return
 
+    const video = videoRef.current
+    if (!video) return
+
+    let disposed = false
+    let animationFrameId: number | null = null
+    let videoFrameId: number | null = null
+
+    const freezeDecisionFrame = () => {
+      if (disposed) return
+      video.pause()
+      setPhase('choose')
+    }
+
+    const watchWithAnimationFrame = () => {
+      if (disposed) return
+      if (video.currentTime >= scenario.decisionTime) {
+        freezeDecisionFrame()
+        return
+      }
+      animationFrameId = window.requestAnimationFrame(watchWithAnimationFrame)
+    }
+
+    if (typeof video.requestVideoFrameCallback === 'function') {
+      const watchVideoFrame: VideoFrameRequestCallback = (_now, metadata) => {
+        if (disposed) return
+        if (metadata.mediaTime >= scenario.decisionTime) {
+          freezeDecisionFrame()
+          return
+        }
+        videoFrameId = video.requestVideoFrameCallback(watchVideoFrame)
+      }
+      videoFrameId = video.requestVideoFrameCallback(watchVideoFrame)
+    } else {
+      animationFrameId = window.requestAnimationFrame(watchWithAnimationFrame)
+    }
+
     const fallback = window.setTimeout(() => {
-      const video = videoRef.current
-      if (video && video.currentTime < scenario.decisionTime) {
+      if (disposed) return
+      if (video.currentTime < scenario.decisionTime) {
         video.currentTime = scenario.decisionTime
       }
-      video?.pause()
-      setPhase('choose')
+      freezeDecisionFrame()
     }, scenario.decisionTime * 1000 + 650)
 
-    return () => window.clearTimeout(fallback)
+    return () => {
+      disposed = true
+      window.clearTimeout(fallback)
+      if (animationFrameId !== null) window.cancelAnimationFrame(animationFrameId)
+      if (videoFrameId !== null) video.cancelVideoFrameCallback(videoFrameId)
+    }
   }, [phase, scenario.decisionTime])
 
   async function start() {
@@ -184,16 +224,6 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     await video.play().catch(() => undefined)
   }
 
-  function onTimeUpdate() {
-    const video = videoRef.current
-    if (!video || phase !== 'setup') return
-    if (video.currentTime >= scenario.decisionTime) {
-      video.pause()
-      video.currentTime = scenario.decisionTime
-      setPhase('choose')
-    }
-  }
-
   function choose(nextEnergy: TimelineEnergy) {
     setEnergy(nextEnergy)
     setPhase('timing')
@@ -209,7 +239,6 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     setPhase('result')
     const video = videoRef.current
     if (video) {
-      video.currentTime = scenario.decisionTime
       video.playbackRate =
         nextOutcome.cameraTreatment === 'slowmo-punch' ? 0.68 : nextOutcome.cameraTreatment === 'var-glitch' ? 0.78 : 0.88
       video.volume = 0.34
@@ -247,7 +276,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
         aria-label="Playable news football moment"
         style={{ aspectRatio: scenario.stageAspect ?? '1206 / 956' }}
       >
-        <video ref={videoRef} src={source} playsInline preload="auto" onTimeUpdate={onTimeUpdate} onEnded={onVideoEnded} />
+        <video ref={videoRef} src={source} playsInline preload="auto" onEnded={onVideoEnded} />
         <div className="broadcast-grade" />
         <div
           className="goal-hotspots"
