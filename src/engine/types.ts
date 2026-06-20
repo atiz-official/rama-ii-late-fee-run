@@ -48,6 +48,7 @@ export type MomentMarkers = {
 
 export type PlayableMomentScenario = {
   id: string
+  slug: string
   title: string
   eyebrow: string
   description: string

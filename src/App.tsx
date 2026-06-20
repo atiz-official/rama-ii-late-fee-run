@@ -10,7 +10,7 @@ import { Hud } from './components/Hud'
 import { ScenarioLibrary } from './components/ScenarioLibrary'
 import { useGameStore } from './game/store'
 import type { DriveControl } from './game/store'
-import { footballMomentScenarios, getScenario } from './scenarios/footballMoments'
+import { footballMomentScenarios, getScenarioFromLocation } from './scenarios/footballMoments'
 import { PlayableMoment } from './templates/PlayableMoment'
 import './App.css'
 
@@ -30,19 +30,24 @@ function App() {
 }
 
 function FootballMomentsApp() {
-  const [scenario, setScenario] = useState(() => getScenario(new URLSearchParams(window.location.search).get('scenario')))
+  const [scenario, setScenario] = useState(() => getScenarioFromLocation(window.location))
   const [libraryOpen, setLibraryOpen] = useState(false)
 
   useEffect(() => {
-    const syncFromUrl = () => setScenario(getScenario(new URLSearchParams(window.location.search).get('scenario')))
+    const syncFromUrl = () => setScenario(getScenarioFromLocation(window.location))
     window.addEventListener('popstate', syncFromUrl)
-    return () => window.removeEventListener('popstate', syncFromUrl)
+    window.addEventListener('hashchange', syncFromUrl)
+    return () => {
+      window.removeEventListener('popstate', syncFromUrl)
+      window.removeEventListener('hashchange', syncFromUrl)
+    }
   }, [])
 
   function selectScenario(nextScenario: typeof scenario) {
     const url = new URL(window.location.href)
     url.searchParams.delete('mode')
-    url.searchParams.set('scenario', nextScenario.id)
+    url.searchParams.delete('scenario')
+    url.hash = `/${nextScenario.slug}`
     window.history.pushState({}, '', url)
     setScenario(nextScenario)
     setLibraryOpen(false)

@@ -3,6 +3,7 @@ import type { PlayableMomentScenario } from '../engine/types'
 export const footballMomentScenarios: PlayableMomentScenario[] = [
   {
     id: 'penalty-timeline-remix',
+    slug: 'penalty',
     title: 'Rewrite the penalty timeline.',
     eyebrow: 'PLAYABLE NEWS LAB',
     description: 'Real footage as the base layer. You choose the timeline energy, tap the kick, and the moment branches into a new reality.',
@@ -30,6 +31,7 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
   },
   {
     id: 'breakaway-finish',
+    slug: 'breakaway',
     title: 'Rewrite the breakaway finish.',
     eyebrow: 'PLAYABLE MATCH MOMENT',
     description: 'Real broadcast footage. One touch before the finish, choose how this attack becomes history.',
@@ -63,8 +65,14 @@ const DEFAULT_SCENARIO_ID = 'breakaway-finish'
 
 export function getScenario(id?: string | null) {
   return (
-    footballMomentScenarios.find((scenario) => scenario.id === id) ??
+    footballMomentScenarios.find((scenario) => scenario.id === id || scenario.slug === id) ??
     footballMomentScenarios.find((scenario) => scenario.id === DEFAULT_SCENARIO_ID) ??
     footballMomentScenarios[0]
   )
+}
+
+export function getScenarioFromLocation(location: Pick<Location, 'hash' | 'search'>) {
+  const slug = location.hash.replace(/^#\/?/, '').split(/[/?]/)[0]
+  const legacyId = new URLSearchParams(location.search).get('scenario')
+  return getScenario(slug || legacyId)
 }
