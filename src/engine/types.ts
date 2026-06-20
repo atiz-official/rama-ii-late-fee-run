@@ -59,6 +59,9 @@ export type PlayableMomentScenario = {
   choosePrompt: string
   timingCta: string
   resultShareTitle: string
+  poster: string
+  catalogLabel: string
+  durationLabel: string
   stageAspect?: string
   hotspotLabels?: [string, string, string]
   markers: MomentMarkers

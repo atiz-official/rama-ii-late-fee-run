@@ -14,6 +14,9 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     choosePrompt: 'Pick the kind of timeline',
     timingCta: 'Tap to kick',
     resultShareTitle: 'Penalty Timeline Remix',
+    poster: 'posters/penalty-timeline.webp',
+    catalogLabel: 'Penalty',
+    durationLabel: '8 sec',
     markers: {
       ballStart: { x: 42.4, y: 70.8 },
       goal: { x: 27, y: 22, width: 46, height: 19 },
@@ -38,6 +41,9 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     choosePrompt: 'How do you finish the breakaway?',
     timingCta: 'Strike now',
     resultShareTitle: 'Breakaway Timeline',
+    poster: 'posters/breakaway-finish.webp',
+    catalogLabel: 'Open play',
+    durationLabel: '8 sec',
     stageAspect: '16 / 9',
     hotspotLabels: ['NEAR', 'HIGH', 'FAR'],
     markers: {

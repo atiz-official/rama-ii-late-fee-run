@@ -7,9 +7,10 @@ import { ACESFilmicToneMapping, SRGBColorSpace } from 'three'
 import type { WebGLRenderer } from 'three'
 import { GameScene } from './components/GameScene'
 import { Hud } from './components/Hud'
+import { ScenarioLibrary } from './components/ScenarioLibrary'
 import { useGameStore } from './game/store'
 import type { DriveControl } from './game/store'
-import { getScenario } from './scenarios/footballMoments'
+import { footballMomentScenarios, getScenario } from './scenarios/footballMoments'
 import { PlayableMoment } from './templates/PlayableMoment'
 import './App.css'
 
@@ -23,9 +24,43 @@ const controls = [
 
 function App() {
   const params = new URLSearchParams(window.location.search)
-  if (params.get('mode') !== 'cafe') return <PlayableMoment scenario={getScenario(params.get('scenario'))} />
+  if (params.get('mode') !== 'cafe') return <FootballMomentsApp />
 
   return <CafeRunApp />
+}
+
+function FootballMomentsApp() {
+  const [scenario, setScenario] = useState(() => getScenario(new URLSearchParams(window.location.search).get('scenario')))
+  const [libraryOpen, setLibraryOpen] = useState(false)
+
+  useEffect(() => {
+    const syncFromUrl = () => setScenario(getScenario(new URLSearchParams(window.location.search).get('scenario')))
+    window.addEventListener('popstate', syncFromUrl)
+    return () => window.removeEventListener('popstate', syncFromUrl)
+  }, [])
+
+  function selectScenario(nextScenario: typeof scenario) {
+    const url = new URL(window.location.href)
+    url.searchParams.delete('mode')
+    url.searchParams.set('scenario', nextScenario.id)
+    window.history.pushState({}, '', url)
+    setScenario(nextScenario)
+    setLibraryOpen(false)
+  }
+
+  return (
+    <>
+      <PlayableMoment key={scenario.id} scenario={scenario} />
+      <ScenarioLibrary
+        activeScenario={scenario}
+        open={libraryOpen}
+        scenarios={footballMomentScenarios}
+        onClose={() => setLibraryOpen(false)}
+        onOpen={() => setLibraryOpen(true)}
+        onSelect={selectScenario}
+      />
+    </>
+  )
 }
 
 function CafeRunApp() {
