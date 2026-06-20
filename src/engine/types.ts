@@ -2,7 +2,7 @@ export type ClipPhase = 'ready' | 'setup' | 'choose' | 'timing' | 'result'
 
 export type TimelineEnergy = 'normal' | 'hero' | 'chaos' | 'cursed'
 
-export type MomentTemplateId = 'spot-kick'
+export type MomentTemplateId = 'spot-kick' | 'breakaway-finish'
 export type KeeperReactionId = 'wrong-footed' | 'fist-pump' | 'sprawl-save' | 'stunned-freeze' | 'mocking-dance'
 export type PlayerReactionId = 'arms-wide' | 'knees-slide' | 'face-cover' | 'cold-stare' | 'crowd-sprint'
 export type CrowdBedId = 'roar' | 'gasp' | 'silence' | 'post-clang' | 'chaos-surge' | 'var-confusion' | 'hero-chant' | 'stunned-laughter'
@@ -59,6 +59,8 @@ export type PlayableMomentScenario = {
   choosePrompt: string
   timingCta: string
   resultShareTitle: string
+  stageAspect?: string
+  hotspotLabels?: [string, string, string]
   markers: MomentMarkers
   energyCopy: Record<TimelineEnergy, TimelineEnergyCopy>
 }

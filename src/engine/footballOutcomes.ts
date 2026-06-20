@@ -3,10 +3,150 @@ import { seeded } from './random'
 
 export function pickFootballOutcome(scenario: PlayableMomentScenario, energy: TimelineEnergy, timing: number, seed: number): TimelineOutcome {
   switch (scenario.template) {
+    case 'breakaway-finish':
+      return pickBreakawayFinishOutcome(energy, timing, seed)
     case 'spot-kick':
       return pickSpotKickOutcome(energy, timing, seed)
     default:
       return pickSpotKickOutcome(energy, timing, seed)
+  }
+}
+
+function pickBreakawayFinishOutcome(energy: TimelineEnergy, timing: number, seed: number): TimelineOutcome {
+  const rand = seeded(seed)
+  const precision = 1 - Math.min(1, Math.abs(timing - 0.5) * 2)
+
+  if (energy === 'chaos') {
+    return {
+      id: 'double-finish',
+      label: 'Double Finish',
+      caption: 'One touch created two goals.',
+      rarity: 'impossible',
+      rarityTier: 'absurd',
+      odds: '1.2%',
+      target: { x: 93 + rand() * 3, y: 36 + rand() * 8 },
+      ballColor: '#9affd0',
+      keeperDive: 'right',
+      keeperReaction: 'stunned-freeze',
+      playerReaction: 'cold-stare',
+      crowdBed: 'chaos-surge',
+      commentaryStyle: 'meme-table',
+      cameraTreatment: 'handheld-chaos',
+      commentatorLine: 'Two shots from one boot! The replay cannot decide which goal was real!',
+      crowdSign: 'TWO GOALS?',
+      beats: ['the broadcast splits', 'both shots beat the keeper', 'the scoreboard chooses one'],
+      flight: 'curl',
+      impact: 'net',
+      curve: 10 + rand() * 8,
+      spin: 1380 + rand() * 380,
+      effect: 'multi',
+    }
+  }
+
+  if (energy === 'cursed') {
+    return {
+      id: 'ghost-curve',
+      label: 'Ghost Curve',
+      caption: 'The ball disappeared behind the defender and returned inside the post.',
+      rarity: 'forbidden',
+      rarityTier: 'cursed',
+      odds: '2.8%',
+      target: { x: 96, y: 39 + rand() * 5 },
+      ballColor: '#c095ff',
+      keeperDive: 'right',
+      keeperReaction: 'wrong-footed',
+      playerReaction: 'arms-wide',
+      crowdBed: 'var-confusion',
+      commentaryStyle: 'var-room',
+      cameraTreatment: 'var-glitch',
+      commentatorLine: 'The keeper lost sight of it! That finish left the visible timeline!',
+      crowdSign: 'WHERE DID IT GO?',
+      beats: ['ball leaves the frame', 'keeper dives at a shadow', 'net confirms the impossible'],
+      flight: 'portal',
+      impact: 'net',
+      curve: 22 + rand() * 7,
+      spin: 1640,
+      effect: 'portal',
+    }
+  }
+
+  if (energy === 'hero') {
+    return {
+      id: 'thunderbolt',
+      label: 'Thunderbolt',
+      caption: 'No keeper reaches a finish hit like that.',
+      rarity: precision > 0.84 ? 'legendary' : 'elite',
+      rarityTier: precision > 0.84 ? 'legendary' : 'rare',
+      odds: precision > 0.84 ? '3.6%' : '11.4%',
+      target: { x: 95 + rand() * 2, y: 32 + rand() * 5 },
+      ballColor: '#fff09d',
+      keeperDive: 'right',
+      keeperReaction: 'sprawl-save',
+      playerReaction: 'crowd-sprint',
+      crowdBed: 'hero-chant',
+      commentaryStyle: 'english-drama',
+      cameraTreatment: 'slowmo-punch',
+      commentatorLine: 'He has smashed the timeline open! That is an unstoppable finish!',
+      crowdSign: 'UNSTOPPABLE',
+      beats: ['shot explodes off the boot', 'keeper reaches full stretch', 'celebration becomes the replay'],
+      flight: 'rising',
+      impact: 'net',
+      curve: 5 + rand() * 5,
+      spin: 1120 + rand() * 280,
+      effect: 'clean',
+    }
+  }
+
+  if (precision < 0.42) {
+    return {
+      id: 'post-and-in',
+      label: 'Post and In',
+      caption: 'The finish needed the frame, but history only records the goal.',
+      rarity: 'dramatic',
+      rarityTier: 'tragic',
+      odds: '14.7%',
+      target: { x: 98.2, y: 45 + rand() * 4 },
+      ballColor: '#ffffff',
+      keeperDive: 'right',
+      keeperReaction: 'stunned-freeze',
+      playerReaction: 'arms-wide',
+      crowdBed: 'post-clang',
+      commentaryStyle: 'english-drama',
+      cameraTreatment: 'freeze-frame',
+      commentatorLine: 'Off the post and in! The finish survived by the width of the paint!',
+      crowdSign: 'POST. IN.',
+      beats: ['post rings through the stadium', 'keeper looks back', 'the crowd erupts late'],
+      flight: 'driven',
+      impact: 'post',
+      curve: 3,
+      spin: 920,
+      effect: 'post',
+    }
+  }
+
+  return {
+    id: 'composed-finish',
+    label: 'Composed Finish',
+    caption: 'One look at the keeper. One touch into the corner.',
+    rarity: precision > 0.82 ? 'ice-cold' : 'clean',
+    rarityTier: precision > 0.82 ? 'rare' : 'common',
+    odds: precision > 0.82 ? '9.8%' : '34.5%',
+    target: { x: 94 + rand() * 2.4, y: 43 + rand() * 5 },
+    ballColor: '#ffffff',
+    keeperDive: 'right',
+    keeperReaction: 'wrong-footed',
+    playerReaction: 'arms-wide',
+    crowdBed: 'roar',
+    commentaryStyle: 'english-drama',
+    cameraTreatment: 'broadcast',
+    commentatorLine: 'Calm, precise, inevitable. The keeper was beaten before the ball left his boot!',
+    crowdSign: 'ICE COLD',
+    beats: ['attacker reads the keeper', 'finish rolls beyond the glove', 'real celebration takes over'],
+    flight: 'curl',
+    impact: 'net',
+    curve: 8 + rand() * 5,
+    spin: 980 + rand() * 280,
+    effect: 'clean',
   }
 }
 

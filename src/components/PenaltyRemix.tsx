@@ -84,11 +84,22 @@ function GoalImpact({ outcome }: { outcome: TimelineOutcome }) {
 function TimelineSplit({ outcome, ballStart }: { outcome: TimelineOutcome; ballStart: { x: number; y: number } }) {
   if (outcome.effect !== 'multi') return null
 
+  const sharedStyle = {
+    '--split-start-x': `${ballStart.x}%`,
+    '--split-start-y': `${ballStart.y}%`,
+  } as CSSProperties
+
   return (
     <div className="timeline-split" aria-hidden>
       <span className="split-rift" />
-      <span className="split-ball split-ball-a" style={{ '--split-start-x': `${ballStart.x}%`, '--split-start-y': `${ballStart.y}%` } as CSSProperties} />
-      <span className="split-ball split-ball-b" style={{ '--split-start-x': `${ballStart.x}%`, '--split-start-y': `${ballStart.y}%` } as CSSProperties} />
+      <span
+        className="split-ball split-ball-a"
+        style={{ ...sharedStyle, '--split-end-x': `${outcome.target.x - 1.3}%`, '--split-end-y': `${outcome.target.y - 3}%` } as CSSProperties}
+      />
+      <span
+        className="split-ball split-ball-b"
+        style={{ ...sharedStyle, '--split-end-x': `${Math.min(99, outcome.target.x + 1.3)}%`, '--split-end-y': `${outcome.target.y + 4}%` } as CSSProperties}
+      />
     </div>
   )
 }
@@ -120,6 +131,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
 
   const source = `${import.meta.env.BASE_URL}${scenario.baseVideo}`
   const meterScore = useMemo(() => Math.abs(meter - 0.5), [meter])
+  const hotspotLabels = scenario.hotspotLabels ?? ['LEFT', 'CENTER', 'RIGHT']
 
   useEffect(() => {
     if (phase !== 'timing') {
@@ -230,13 +242,26 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
         outcome ? `outcome-${outcome.effect} impact-${outcome.impact} camera-${outcome.cameraTreatment} rarity-${outcome.rarityTier}` : ''
       }`}
     >
-      <section className="penalty-stage" aria-label="Playable news penalty remix">
+      <section
+        className={`penalty-stage scenario-${scenario.id}`}
+        aria-label="Playable news football moment"
+        style={{ aspectRatio: scenario.stageAspect ?? '1206 / 956' }}
+      >
         <video ref={videoRef} src={source} playsInline preload="auto" onTimeUpdate={onTimeUpdate} onEnded={onVideoEnded} />
         <div className="broadcast-grade" />
-        <div className="goal-hotspots" aria-hidden>
-          <span className="hotspot left">LEFT</span>
-          <span className="hotspot center">CENTER</span>
-          <span className="hotspot right">RIGHT</span>
+        <div
+          className="goal-hotspots"
+          style={{
+            left: `${scenario.markers.goal.x}%`,
+            top: `${scenario.markers.goal.y}%`,
+            width: `${scenario.markers.goal.width}%`,
+            height: `${scenario.markers.goal.height}%`,
+          }}
+          aria-hidden
+        >
+          <span className="hotspot left">{hotspotLabels[0]}</span>
+          <span className="hotspot center">{hotspotLabels[1]}</span>
+          <span className="hotspot right">{hotspotLabels[2]}</span>
         </div>
 
         {phase === 'ready' && (
@@ -298,13 +323,13 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
           <>
             <ActionShock outcome={outcome} />
             <TimelineAtmosphere outcome={outcome} />
-            <RealisticBallFlight outcome={outcome} ballStart={scenario.markers.ballStart} />
+            {outcome.effect !== 'multi' && <RealisticBallFlight outcome={outcome} ballStart={scenario.markers.ballStart} />}
             <TimelineSplit outcome={outcome} ballStart={scenario.markers.ballStart} />
             <GoalImpact outcome={outcome} />
           </>
         )}
 
-        {outcome?.effect === 'portal' && <div className="var-portal">VAR PORTAL</div>}
+        {outcome?.effect === 'portal' && <div className="var-portal">{scenario.template === 'breakaway-finish' ? 'GHOST CURVE' : 'VAR PORTAL'}</div>}
 
         {phase === 'result' && outcome && (
           <div className="result-slab">

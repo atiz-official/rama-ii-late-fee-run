@@ -1006,6 +1006,32 @@
   animation: football-flight 940ms cubic-bezier(0.13, 0.82, 0.12, 1) forwards;
 }
 
+.scenario-breakaway-finish .soccer-ball {
+  width: clamp(14px, 1.4vw, 20px);
+  height: clamp(14px, 1.4vw, 20px);
+  box-shadow:
+    inset -4px -5px 7px rgba(0, 0, 0, 0.46),
+    inset 3px 3px 5px rgba(255, 255, 255, 0.52),
+    0 0 10px rgba(255, 255, 255, 0.38),
+    0 5px 10px rgba(0, 0, 0, 0.34);
+}
+
+.scenario-breakaway-finish .ball-trail {
+  width: 84px;
+  height: 8px;
+  opacity: 0;
+}
+
+.scenario-breakaway-finish .split-ball {
+  width: clamp(13px, 1.25vw, 18px);
+  height: clamp(13px, 1.25vw, 18px);
+}
+
+.scenario-breakaway-finish .hotspot {
+  font-size: clamp(0.44rem, 0.7vw, 0.62rem);
+  letter-spacing: 0.04em;
+}
+
 .soccer-ball::before {
   content: "";
   position: absolute;
@@ -1425,8 +1451,8 @@
     opacity: 0.92;
   }
   100% {
-    left: 35%;
-    top: 31%;
+    left: var(--split-end-x);
+    top: var(--split-end-y);
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.44) rotate(820deg);
   }
@@ -1443,8 +1469,8 @@
     opacity: 0.82;
   }
   100% {
-    left: 66%;
-    top: 34%;
+    left: var(--split-end-x);
+    top: var(--split-end-y);
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.38) rotate(-760deg);
   }
@@ -3152,6 +3178,50 @@
 }
 
 @media (max-width: 620px) {
+  .scenario-breakaway-finish {
+    width: 100vw;
+    height: min(74vw, 360px);
+    aspect-ratio: auto !important;
+    border-radius: 8px;
+  }
+
+  .scenario-breakaway-finish .result-slab {
+    bottom: 8px;
+    width: calc(100% - 16px);
+    padding: 9px 10px;
+    border-radius: 10px;
+  }
+
+  .scenario-breakaway-finish .result-slab > span {
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+  }
+
+  .scenario-breakaway-finish .result-slab h2 {
+    margin: 4px 0 5px;
+    font-size: 1.55rem;
+  }
+
+  .scenario-breakaway-finish .result-slab p {
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+
+  .scenario-breakaway-finish .timeline-beats {
+    display: none;
+  }
+
+  .scenario-breakaway-finish .result-actions {
+    gap: 6px;
+  }
+
+  .scenario-breakaway-finish .result-actions button {
+    min-height: 36px;
+    padding: 0 8px;
+    font-size: 0.74rem;
+  }
+
   .energy-card {
     bottom: 10px;
     width: min(560px, calc(100% - 24px));
