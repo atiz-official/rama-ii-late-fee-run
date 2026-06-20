@@ -37,7 +37,7 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     description: 'Real broadcast footage. One touch before the finish, choose how this attack becomes history.',
     template: 'breakaway-finish',
     baseVideo: 'footage/messi-breakaway.mp4',
-    decisionTime: 2.18,
+    decisionTime: 2.25,
     setupLabel: 'The final shooting lane is opening',
     readyCta: 'Enter the attack',
     choosePrompt: 'How do you finish the breakaway?',
@@ -61,7 +61,7 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
   },
 ]
 
-const DEFAULT_SCENARIO_ID = 'breakaway-finish'
+const DEFAULT_SCENARIO_ID = 'penalty-timeline-remix'
 
 export function getScenario(id?: string | null) {
   return (
