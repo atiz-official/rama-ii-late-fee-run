@@ -37,7 +37,7 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     description: 'Real broadcast footage. One touch before the finish, choose how this attack becomes history.',
     template: 'breakaway-finish',
     baseVideo: 'footage/messi-breakaway.mp4',
-    decisionTime: 2.25,
+    decisionTime: 2.29,
     setupLabel: 'The final shooting lane is opening',
     readyCta: 'Enter the attack',
     choosePrompt: 'How do you finish the breakaway?',
