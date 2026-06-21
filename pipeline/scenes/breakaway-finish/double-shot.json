@@ -1,0 +1,28 @@
+{
+  "id": "breakaway-double-shot-v1",
+  "source": "../../../public/footage/messi-breakaway.mp4",
+  "ballAsset": "../../assets/match-ball.png",
+  "output": "../../../public/footage/branches/breakaway-finish/double-shot-v1.mp4",
+  "fps": 30,
+  "contactTime": 2.29,
+  "impactTime": 3.36,
+  "endTime": 3.56,
+  "ballSize": {
+    "start": 12,
+    "end": 7
+  },
+  "trajectory": [
+    { "time": 2.29, "x": 450, "y": 382 },
+    { "time": 2.43, "x": 520, "y": 359 },
+    { "time": 2.57, "x": 625, "y": 330 },
+    { "time": 2.7, "x": 730, "y": 303 },
+    { "time": 2.83, "x": 820, "y": 284 },
+    { "time": 2.97, "x": 860, "y": 278 },
+    { "time": 3.1, "x": 830, "y": 291 },
+    { "time": 3.23, "x": 775, "y": 305 },
+    { "time": 3.36, "x": 720, "y": 316 },
+    { "time": 3.43, "x": 696, "y": 325 },
+    { "time": 3.5, "x": 678, "y": 337 },
+    { "time": 3.56, "x": 670, "y": 345 }
+  ]
+}

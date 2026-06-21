@@ -48,6 +48,9 @@ export const footballMomentScenarios: PlayableMomentScenario[] = [
     durationLabel: '8 sec',
     stageAspect: '16 / 9',
     hotspotLabels: ['NEAR', 'HIGH', 'FAR'],
+    branchVideos: {
+      'double-finish': 'footage/branches/breakaway-finish/double-shot-v1.mp4',
+    },
     markers: {
       ballStart: { x: 34.5, y: 56 },
       goal: { x: 82, y: 24, width: 17.5, height: 31 },

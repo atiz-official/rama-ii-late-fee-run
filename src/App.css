@@ -321,6 +321,19 @@
   transform-origin: 50% 42%;
 }
 
+.rendered-branch-video {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rendered-branch-video.is-active {
+  opacity: 1;
+}
+
+.has-rendered-branch .source-video {
+  opacity: 0;
+}
+
 .broadcast-grade {
   pointer-events: none;
   position: absolute;

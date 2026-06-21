@@ -1,0 +1,8 @@
+Use case: photorealistic-natural
+Asset type: tiny broadcast-footage compositing sprite for a football match
+Primary request: one modern professional association football match ball, isolated and centered, fully visible, realistic stitched panels and subtle surface texture, photographed straight-on with neutral orientation
+Style/medium: photorealistic sports product photography, designed to remain readable when reduced to 8-20 pixels
+Composition/framing: square image, ball centered with generous empty padding
+Lighting/mood: soft diffuse stadium-like light, restrained highlight, realistic dimensional shading
+Scene/backdrop: perfectly flat solid #ff00ff chroma-key background
+Constraints: background must be one uniform #ff00ff color with no shadows, gradients, texture, floor, reflection, or lighting variation; crisp ball silhouette; no cast shadow; no contact shadow; no text; no logo; no watermark; do not use magenta anywhere on the ball

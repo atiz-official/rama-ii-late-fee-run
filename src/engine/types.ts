@@ -65,6 +65,7 @@ export type PlayableMomentScenario = {
   durationLabel: string
   stageAspect?: string
   hotspotLabels?: [string, string, string]
+  branchVideos?: Record<string, string>
   markers: MomentMarkers
   energyCopy: Record<TimelineEnergy, TimelineEnergyCopy>
 }

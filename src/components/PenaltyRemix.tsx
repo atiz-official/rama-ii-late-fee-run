@@ -121,15 +121,20 @@ function TimelineAtmosphere({ outcome }: { outcome: TimelineOutcome }) {
 
 export function PenaltyRemix({ scenario = getScenario() }: { scenario?: PlayableMomentScenario }) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const branchVideoRefs = useRef(new Map<string, HTMLVideoElement>())
+  const resultRevealTimerRef = useRef<number | null>(null)
   const [phase, setPhase] = useState<ClipPhase>('ready')
   const [energy, setEnergy] = useState<TimelineEnergy | null>(null)
   const [meter, setMeter] = useState(0)
   const [outcome, setOutcome] = useState<TimelineOutcome | null>(null)
   const [timelineId, setTimelineId] = useState('')
   const [exportingClip, setExportingClip] = useState(false)
+  const [activeBranchId, setActiveBranchId] = useState<string | null>(null)
+  const [showResult, setShowResult] = useState(false)
   const animationRef = useRef<number | null>(null)
 
   const source = `${import.meta.env.BASE_URL}${scenario.baseVideo}`
+  const branchEntries = useMemo(() => Object.entries(scenario.branchVideos ?? {}), [scenario.branchVideos])
   const meterScore = useMemo(() => Math.abs(meter - 0.5), [meter])
   const hotspotLabels = scenario.hotspotLabels ?? ['LEFT', 'CENTER', 'RIGHT']
 
@@ -151,6 +156,14 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
       animationRef.current = null
     }
   }, [phase])
+
+  useEffect(
+    () => () => {
+      if (resultRevealTimerRef.current !== null) window.clearTimeout(resultRevealTimerRef.current)
+      branchVideoRefs.current.forEach((branchVideo) => branchVideo.pause())
+    },
+    [],
+  )
 
   useEffect(() => {
     if (phase !== 'setup') return
@@ -209,11 +222,22 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
 
   async function start() {
     stopCommentary()
+    if (resultRevealTimerRef.current !== null) {
+      window.clearTimeout(resultRevealTimerRef.current)
+      resultRevealTimerRef.current = null
+    }
     setPhase('setup')
     setEnergy(null)
     setOutcome(null)
     setTimelineId('')
     setExportingClip(false)
+    setActiveBranchId(null)
+    setShowResult(false)
+    branchVideoRefs.current.forEach((branchVideo) => {
+      branchVideo.pause()
+      branchVideo.currentTime = 0
+      branchVideo.muted = true
+    })
     const video = videoRef.current
     if (!video) return
     video.currentTime = 0
@@ -230,36 +254,70 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     playFootballCue('tension')
   }
 
-  function kick() {
+  async function playRenderedBranch(outcomeId: string) {
+    const branchVideo = branchVideoRefs.current.get(outcomeId)
+    const originalVideo = videoRef.current
+    if (!branchVideo || !originalVideo) return false
+
+    if (branchVideo.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise<void>((resolve) => {
+        branchVideo.addEventListener('loadedmetadata', () => resolve(), { once: true })
+      })
+    }
+
+    branchVideo.pause()
+    branchVideo.currentTime = Math.max(scenario.decisionTime, originalVideo.currentTime)
+    branchVideo.playbackRate = 1
+    branchVideo.volume = 0.62
+    branchVideo.muted = false
+    originalVideo.pause()
+    originalVideo.muted = true
+    setActiveBranchId(outcomeId)
+    await branchVideo.play().catch(() => undefined)
+    return true
+  }
+
+  async function kick() {
     if (!energy) return
     const seed = randomSeed()
     const nextOutcome = pickFootballOutcome(scenario, energy, meter, seed)
+    const hasRenderedBranch = Boolean(scenario.branchVideos?.[nextOutcome.id])
     setTimelineId(getTimelineLabel(seed))
     setOutcome(nextOutcome)
     setPhase('result')
-    const video = videoRef.current
-    if (video) {
+    setShowResult(false)
+
+    if (hasRenderedBranch) {
+      await playRenderedBranch(nextOutcome.id)
+    } else {
+      const video = videoRef.current
+      if (!video) return
       video.playbackRate =
         nextOutcome.cameraTreatment === 'slowmo-punch' ? 0.68 : nextOutcome.cameraTreatment === 'var-glitch' ? 0.78 : 0.88
       video.volume = 0.34
       video.muted = false
       void video.play().catch(() => undefined)
+      playFootballCue('kick')
+      playOutcomeCues(nextOutcome)
     }
-    playFootballCue('kick')
-    playOutcomeCues(nextOutcome)
+
+    resultRevealTimerRef.current = window.setTimeout(() => {
+      setShowResult(true)
+      resultRevealTimerRef.current = null
+    }, hasRenderedBranch ? 1800 : 260)
   }
 
-  function onVideoEnded() {
-    const video = videoRef.current
-    if (!video || phase !== 'result' || !Number.isFinite(video.duration)) return
-    video.currentTime = Math.max(scenario.decisionTime, video.duration - 0.08)
+  function onVideoEnded(video: HTMLVideoElement | null) {
+    if (!video || phase !== 'result') return
     video.pause()
   }
 
   async function saveShareClip(nextOutcome: TimelineOutcome) {
     setExportingClip(true)
     try {
-      await exportTimelineClip(source, scenario, nextOutcome, timelineId)
+      const branchPath = activeBranchId ? scenario.branchVideos?.[activeBranchId] : null
+      const activeSource = branchPath ? `${import.meta.env.BASE_URL}${branchPath}` : source
+      await exportTimelineClip(activeSource, scenario, nextOutcome, timelineId)
     } finally {
       setExportingClip(false)
     }
@@ -269,14 +327,29 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     <main
       className={`penalty-lab phase-${phase} ${
         outcome ? `outcome-${outcome.effect} impact-${outcome.impact} camera-${outcome.cameraTreatment} rarity-${outcome.rarityTier}` : ''
-      }`}
+      } ${activeBranchId ? 'has-rendered-branch' : ''}`}
     >
       <section
         className={`penalty-stage scenario-${scenario.id}`}
         aria-label="Playable news football moment"
         style={{ aspectRatio: scenario.stageAspect ?? '1206 / 956' }}
       >
-        <video ref={videoRef} src={source} playsInline preload="auto" onEnded={onVideoEnded} />
+        <video className="source-video" ref={videoRef} src={source} playsInline preload="auto" onEnded={() => onVideoEnded(videoRef.current)} />
+        {branchEntries.map(([outcomeId, branchPath]) => (
+          <video
+            className={`rendered-branch-video ${activeBranchId === outcomeId ? 'is-active' : ''}`}
+            key={outcomeId}
+            ref={(element) => {
+              if (element) branchVideoRefs.current.set(outcomeId, element)
+              else branchVideoRefs.current.delete(outcomeId)
+            }}
+            src={`${import.meta.env.BASE_URL}${branchPath}`}
+            playsInline
+            preload="auto"
+            muted
+            onEnded={(event) => onVideoEnded(event.currentTarget)}
+          />
+        ))}
         <div className="broadcast-grade" />
         <div
           className="goal-hotspots"
@@ -330,7 +403,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
         )}
 
         {phase === 'timing' && (
-          <button type="button" className={`kick-zone timing-${energy ?? 'normal'}`} onClick={kick}>
+          <button type="button" className={`kick-zone timing-${energy ?? 'normal'}`} onClick={() => void kick()}>
             <div className="kick-meta">
               <span>{scenario.timingCta}</span>
               {energy && <strong>{scenario.energyCopy[energy].title} timeline armed</strong>}
@@ -348,7 +421,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
           </button>
         )}
 
-        {outcome && (
+        {outcome && !activeBranchId && (
           <>
             <ActionShock outcome={outcome} />
             <TimelineAtmosphere outcome={outcome} />
@@ -360,7 +433,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
 
         {outcome?.effect === 'portal' && <div className="var-portal">{scenario.template === 'breakaway-finish' ? 'GHOST CURVE' : 'VAR PORTAL'}</div>}
 
-        {phase === 'result' && outcome && (
+        {phase === 'result' && outcome && showResult && (
           <div className="result-slab">
             <span>{timelineId} - {outcome.rarity} - {outcome.odds}</span>
             <h2>{outcome.label}</h2>
