@@ -8,7 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "render:double-shot": "node pipeline/render-branch.mjs pipeline/scenes/breakaway-finish/double-shot.json"
+    "render:double-shot": "node pipeline/render-branch.mjs pipeline/scenes/breakaway-finish/double-shot.json",
+    "compiler:dry-run": "node pipeline/compiler/compile.mjs pipeline/jobs/breakaway-double-shot-gpu.json --dry-run",
+    "compiler:run": "node pipeline/compiler/compile.mjs pipeline/jobs/breakaway-double-shot-gpu.json",
+    "compiler:test": "node --test pipeline/compiler/compiler.test.mjs pipeline/compiler/api/server.test.mjs",
+    "compiler:api": "node pipeline/compiler/api/server.mjs",
+    "compiler:publish": "node pipeline/compiler/publish.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

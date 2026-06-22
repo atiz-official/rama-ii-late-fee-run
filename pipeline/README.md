@@ -33,4 +33,36 @@ The web player maps the generated file to the `double-finish` outcome and disabl
 
 ## Next Upgrade
 
-The deterministic ball compositor is the first completed stage. Keeper and player motion still come from the original footage. Replacing those reactions requires tracked masks, clean-plate inpainting, and generated reaction clips from a GPU worker.
+The deterministic ball compositor is the first completed stage. The GPU compiler adds:
+
+- SAM 2.1 multi-object masks for ball, goalkeeper, and shooter.
+- VACE masked video editing with three candidates per edit.
+- Automated mask, outside-mask, black-frame, duration, and audio gates.
+- Feathered color-matched compositing.
+- Deterministic rendering of both tracked and alternate ball paths.
+- Human approval before publishing generated reactions.
+
+Validate the production job without a GPU:
+
+```bash
+npm run compiler:test
+npm run compiler:dry-run
+```
+
+Run the local API:
+
+```bash
+npm run compiler:api
+```
+
+Production execution uses the container in `pipeline/gpu-worker` and the AWS Batch template in `pipeline/infra/aws-batch-gpu.yaml`. The production profile requests eight GPUs for VACE 14B at 720p. Deploying that infrastructure incurs substantial cloud cost and must be explicitly approved before provisioning.
+
+The API exposes the complete review lifecycle:
+
+- `POST /jobs`
+- `GET /jobs/:id`
+- `GET /jobs/:id/artifact`
+- `GET /jobs/:id/report`
+- `POST /jobs/:id/approve`
+
+See `pipeline/infra/README.md` for image publishing, infrastructure deployment, IAM scope, and cost prerequisites.

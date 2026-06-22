@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "scenarios": {
+    "breakaway-finish": {
+      "double-finish": {
+        "asset": "footage/branches/breakaway-finish/double-shot-v1.mp4",
+        "version": "deterministic-v1",
+        "approved": true
+      }
+    }
+  }
+}

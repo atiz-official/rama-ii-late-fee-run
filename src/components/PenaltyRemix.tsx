@@ -131,10 +131,21 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
   const [exportingClip, setExportingClip] = useState(false)
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
+  const [runtimeCatalog, setRuntimeCatalog] = useState<{ scenarioId: string; videos: Record<string, string> }>({
+    scenarioId: scenario.id,
+    videos: {},
+  })
   const animationRef = useRef<number | null>(null)
 
   const source = `${import.meta.env.BASE_URL}${scenario.baseVideo}`
-  const branchEntries = useMemo(() => Object.entries(scenario.branchVideos ?? {}), [scenario.branchVideos])
+  const runtimeBranchVideos = useMemo(
+    () => ({
+      ...(scenario.branchVideos ?? {}),
+      ...(runtimeCatalog.scenarioId === scenario.id ? runtimeCatalog.videos : {}),
+    }),
+    [runtimeCatalog, scenario.branchVideos, scenario.id],
+  )
+  const branchEntries = useMemo(() => Object.entries(runtimeBranchVideos), [runtimeBranchVideos])
   const meterScore = useMemo(() => Math.abs(meter - 0.5), [meter])
   const hotspotLabels = scenario.hotspotLabels ?? ['LEFT', 'CENTER', 'RIGHT']
 
@@ -164,6 +175,30 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     },
     [],
   )
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void fetch(`${import.meta.env.BASE_URL}footage/branches/catalog.json`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Branch catalog returned ${response.status}`)
+        return response.json()
+      })
+      .then((catalog: { scenarios?: Record<string, Record<string, { asset?: string; approved?: boolean }>> }) => {
+        const entries = catalog.scenarios?.[scenario.id]
+        if (!entries) return
+        const approved = Object.fromEntries(
+          Object.entries(entries)
+            .filter(([, branch]) => branch.approved && branch.asset)
+            .map(([outcomeId, branch]) => [outcomeId, branch.asset as string]),
+        )
+        setRuntimeCatalog({ scenarioId: scenario.id, videos: approved })
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        console.warn('Using bundled branch catalog fallback', error)
+      })
+    return () => controller.abort()
+  }, [scenario.branchVideos, scenario.id])
 
   useEffect(() => {
     if (phase !== 'setup') return
@@ -281,7 +316,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
     if (!energy) return
     const seed = randomSeed()
     const nextOutcome = pickFootballOutcome(scenario, energy, meter, seed)
-    const hasRenderedBranch = Boolean(scenario.branchVideos?.[nextOutcome.id])
+    const hasRenderedBranch = Boolean(runtimeBranchVideos[nextOutcome.id])
     setTimelineId(getTimelineLabel(seed))
     setOutcome(nextOutcome)
     setPhase('result')
@@ -315,7 +350,7 @@ export function PenaltyRemix({ scenario = getScenario() }: { scenario?: Playable
   async function saveShareClip(nextOutcome: TimelineOutcome) {
     setExportingClip(true)
     try {
-      const branchPath = activeBranchId ? scenario.branchVideos?.[activeBranchId] : null
+      const branchPath = activeBranchId ? runtimeBranchVideos[activeBranchId] : null
       const activeSource = branchPath ? `${import.meta.env.BASE_URL}${branchPath}` : source
       await exportTimelineClip(activeSource, scenario, nextOutcome, timelineId)
     } finally {

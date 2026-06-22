@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "breakaway-double-shot-gpu-v1",
+  "scenarioId": "breakaway-finish",
+  "branchId": "double-finish-gpu",
+  "sourceVideo": "public/footage/messi-breakaway.mp4",
+  "outputVideo": "public/footage/branches/breakaway-finish/double-shot-gpu-v1.mp4",
+  "workspace": "pipeline/work/breakaway-double-shot-gpu-v1",
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "contactFrame": 69,
+    "endFrame": 118
+  },
+  "models": {
+    "tracker": {
+      "provider": "sam2",
+      "model": "facebook/sam2.1-hiera-large",
+      "vosOptimized": true
+    },
+    "editor": {
+      "provider": "vace",
+      "model": "Wan2.1-VACE-14B",
+      "checkpointDir": "/models/Wan2.1-VACE-14B",
+      "size": "720p",
+      "gpuCount": 8,
+      "sampleSteps": 40,
+      "guideScale": 5,
+      "seeds": [20260621, 20260622, 20260623]
+    }
+  },
+  "objects": [
+    {
+      "id": 1,
+      "name": "ball",
+      "promptFrame": 69,
+      "box": [438, 370, 458, 392],
+      "maskExpand": 6,
+      "requiredCoverage": 0.84
+    },
+    {
+      "id": 2,
+      "name": "keeper",
+      "promptFrame": 69,
+      "box": [1080, 303, 1148, 411],
+      "maskExpand": 10,
+      "requiredCoverage": 0.9
+    },
+    {
+      "id": 3,
+      "name": "shooter",
+      "promptFrame": 69,
+      "box": [390, 309, 472, 441],
+      "maskExpand": 8,
+      "requiredCoverage": 0.9
+    }
+  ],
+  "edits": [
+    {
+      "id": "clean-plate",
+      "type": "inpaint",
+      "objects": ["ball"],
+      "prompt": "Restore only the football pitch and background hidden by the original ball. Preserve the broadcast camera, all players, lighting, grass texture, compression, scoreboard and crowd exactly. No new objects."
+    },
+    {
+      "id": "keeper-reaction",
+      "type": "masked-video-edit",
+      "objects": ["keeper"],
+      "prompt": "The same goalkeeper in the same yellow kit reacts to two simultaneous shots. He hesitates for a fraction of a second, commits toward the original high shot, then twists his head and free arm toward the second low shot. Preserve identity, body proportions, kit, stadium lighting, broadcast blur, camera motion and every pixel outside the mask."
+    },
+    {
+      "id": "shooter-reaction",
+      "type": "masked-video-edit",
+      "objects": ["shooter"],
+      "prompt": "The same attacking player completes the strike and reacts with a brief surprised double-take before beginning the original celebration. Preserve identity, uniform, body proportions, broadcast camera, lighting and every pixel outside the mask."
+    }
+  ],
+  "deterministicComposite": {
+    "manifest": "pipeline/scenes/breakaway-finish/double-shot.json",
+    "secondBall": true,
+    "occlusionObjects": ["keeper"],
+    "preserveNetLines": true,
+    "contactShadows": true,
+    "netImpact": {
+      "time": 3.43,
+      "x": 670,
+      "y": 345,
+      "radius": 26
+    }
+  },
+  "quality": {
+    "minimumMaskCoverage": 0.84,
+    "maximumMaskFlicker": 0.12,
+    "maximumOutsideMaskDifference": 0.035,
+    "maximumBlackFrameRatio": 0,
+    "minimumDurationSeconds": 7.75,
+    "requireAudio": true,
+    "requireHumanReview": true
+  }
+}

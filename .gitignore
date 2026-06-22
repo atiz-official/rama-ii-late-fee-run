@@ -12,6 +12,10 @@ dist
 dist-ssr
 artifacts
 *.local
+pipeline/work
+pipeline/runtime
+__pycache__
+*.pyc
 
 # Editor directories and files
 .vscode/*
